@@ -2,24 +2,30 @@ const express = require('express')
 
 const app = express()
 
+app.get('/', (req, res) =>  {
+    res.send("Servidor Express Funcionando!!")
+})
+
+app.listen(3000,() =>{
+    console.log ("Servidor backend rodando em http://localhost:3000")
+})
+
 app.use(express.json())
 
-app.get('/', (req, res) => {
-    res.send("Servidor Express!");
+const produtos = []
+
+app.post("/produtos", (req, res) => {
+    const produto = {
+        nome: req.body.nome,
+        preco:  req.body.preco,
+        quantidade:  req.body.quantidade,
+    }
+
+    produtos.push(produto)
+
+    res.send("Produtos cadastrados com sucesso!")
 })
 
-app.get('/sobre', (req, res) => {
-    res.send("bem vindo ao Express!");
-})
-
-app.post('/comprar', (req, res) => {
-    const produto = req.body.produto
-    const preco = req.body.preco
-    const quantidade = req.body.quantidade
-
-    res.send( "preço total:" + preco*quantidade )
-})
-
-app.listen(3000,( )=> {
-    console.log("Servidor rodando em http://localhost:3000")
+app.get("/produtos", (req, res) =>{
+    res.send(produtos)
 })

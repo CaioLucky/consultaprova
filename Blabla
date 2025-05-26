@@ -1,0 +1,141 @@
+
+
+Criar uma pasta pelo CMD
+
+Fazer uma consulta no MySQL para cadastrar e receber produtos
+
+Testar essas rotas com Postman
+
+
+Vamos por partes:
+
+
+---
+
+1. Criar pasta pelo CMD
+
+No Windows, para criar uma pasta, no CMD você usa:
+
+mkdir nome-da-pasta
+
+Por exemplo:
+
+mkdir projeto-backend
+
+E para entrar nessa pasta:
+
+cd projeto-backend
+
+
+---
+
+2. Conectar Node.js ao MySQL e fazer consultas
+
+Aqui está um exemplo simples pra cadastrar e receber produtos com Node.js usando o pacote mysql2:
+
+Passo 1: No projeto, instale o MySQL2 e Express
+
+npm init -y
+npm install express mysql2
+
+Passo 2: Código básico para CRUD de produtos
+
+const express = require('express');
+const mysql = require('mysql2');
+const app = express();
+
+app.use(express.json());
+
+// Configurar conexão com o banco MySQL
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'seu_usuario',
+  password: 'sua_senha',
+  database: 'seu_banco'
+});
+
+db.connect(err => {
+  if (err) {
+    console.log('Erro ao conectar no banco:', err);
+    return;
+  }
+  console.log('Conectado ao MySQL');
+});
+
+// Rota para cadastrar produto
+app.post('/produtos', (req, res) => {
+  const { nome, preco } = req.body;
+  const query = 'INSERT INTO produtos (nome, preco) VALUES (?, ?)';
+  db.query(query, [nome, preco], (err, result) => {
+    if (err) {
+      res.status(500).json({ erro: err });
+      return;
+    }
+    res.status(201).json({ message: 'Produto cadastrado!', id: result.insertId });
+  });
+});
+
+// Rota para listar produtos
+app.get('/produtos', (req, res) => {
+  const query = 'SELECT * FROM produtos';
+  db.query(query, (err, results) => {
+    if (err) {
+      res.status(500).json({ erro: err });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+// Iniciar servidor
+app.listen(3000, () => {
+  console.log('Servidor rodando na porta 3000');
+});
+
+
+---
+
+3. Testar no Postman
+
+Para cadastrar produto:
+
+Método: POST
+
+URL: http://localhost:3000/produtos
+
+Body: raw → JSON
+
+{
+  "nome": "Produto A",
+  "preco": 50
+}
+
+
+Para listar produtos:
+
+Método: GET
+
+URL: http://localhost:3000/produtos
+
+
+CREATE TABLE produtos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  preco DECIMAL(10, 2) NOT NULL
+);
+
+Passo a passo para criar a tabela:
+
+1. Abra terminal do MySQL ou cliente (como MySQL Workbench)
+
+
+2. Conecte no seu banco com:
+
+
+
+USE seu_banco;
+
+3. Depois use o comando acima para criar a tabela.
+
+
+

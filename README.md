@@ -1,0 +1,172 @@
+
+Node.js + Express
+
+MySQL (como banco de dados)
+
+Nodemon (para atualizar automaticamente o servidor)
+
+Testando via Postman
+
+Rotas: GET, POST, PUT (edição) e DELETE
+
+
+
+---
+
+🚀 Passo a passo
+
+1️⃣ Crie a pasta do projeto e inicialize
+
+mkdir api-node-mysql
+cd api-node-mysql
+npm init -y
+
+2️⃣ Instale as dependências
+
+npm install express mysql2
+npm install --save-dev nodemon
+
+No package.json, adicione o script para rodar com o nodemon:
+
+"scripts": {
+  "start": "nodemon index.js"
+}
+
+3️⃣ Crie o arquivo principal
+
+index.js:
+
+const express = require('express');
+const mysql = require('mysql2');
+const app = express();
+app.use(express.json());
+
+// Conexão com o banco de dados
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'sua_senha',
+    database: 'api_db'
+});
+
+// Teste de conexão
+db.connect(err => {
+    if (err) {
+        console.log('Erro na conexão:', err);
+    } else {
+        console.log('Conectado ao MySQL!');
+    }
+});
+
+// 🟢 Rota GET - Buscar todos os usuários
+app.get('/usuarios', (req, res) => {
+    const sql = 'SELECT * FROM usuarios';
+    db.query(sql, (err, result) => {
+        if (err) return res.status(500).json({ error: err });
+        res.json(result);
+    });
+});
+
+// 🟣 Rota POST - Criar um usuário
+app.post('/usuarios', (req, res) => {
+    const { nome, email } = req.body;
+    const sql = 'INSERT INTO usuarios (nome, email) VALUES (?, ?)';
+    db.query(sql, [nome, email], (err, result) => {
+        if (err) return res.status(500).json({ error: err });
+        res.status(201).json({ id: result.insertId, nome, email });
+    });
+});
+
+// 🟡 Rota PUT - Atualizar um usuário
+app.put('/usuarios/:id', (req, res) => {
+    const { id } = req.params;
+    const { nome, email } = req.body;
+    const sql = 'UPDATE usuarios SET nome = ?, email = ? WHERE id = ?';
+    db.query(sql, [nome, email, id], (err, result) => {
+        if (err) return res.status(500).json({ error: err });
+        res.json({ id, nome, email });
+    });
+});
+
+// 🔴 Rota DELETE - Deletar um usuário
+app.delete('/usuarios/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = 'DELETE FROM usuarios WHERE id = ?';
+    db.query(sql, [id], (err, result) => {
+        if (err) return res.status(500).json({ error: err });
+        res.json({ message: 'Usuário deletado com sucesso!' });
+    });
+});
+
+// 🏃‍♂️ Iniciar servidor
+app.listen(3000, () => {
+    console.log('Servidor rodando na porta 3000');
+});
+
+
+---
+
+4️⃣ Crie o banco de dados MySQL
+
+Acesse seu MySQL (pode ser pelo terminal, Workbench, DBeaver, etc.) e execute:
+
+CREATE DATABASE api_db;
+
+USE api_db;
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100)
+);
+
+
+---
+
+5️⃣ Execute o projeto
+
+npm start
+
+
+---
+
+📫 Teste no Postman
+
+🔍 GET (buscar todos):
+
+GET http://localhost:3000/usuarios
+
+
+➕ POST (criar):
+
+POST http://localhost:3000/usuarios
+
+Body (JSON):
+
+
+{
+  "nome": "Mestre Bruce",
+  "email": "bruce@wayne.com"
+}
+
+✍️ PUT (atualizar):
+
+PUT http://localhost:3000/usuarios/1
+
+Body (JSON):
+
+
+{
+  "nome": "Bruce Wayne",
+  "email": "wayne@empresa.com"
+}
+
+❌ DELETE (excluir):
+
+DELETE http://localhost:3000/usuarios/1
+
+
+
+---
+
+
